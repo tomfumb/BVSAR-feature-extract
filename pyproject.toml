@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "BVSAR-feature-extract"
+version = "0.1.0"
+description = "Extract individual feature data from BVSAR trail data store"
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+GDAL = "^3.5.1"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "~2.20.0"
+
+[build-system]
+requires = ['poetry-core~=1.0']
+build-backend = 'poetry.core.masonry.api'
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | lib
+  )/
+)
+'''
+
+[tool.isort]
+atomic=true
+multi_line_output=3
+include_trailing_comma=true
+force_grid_wrap=0
+combine_as_imports=true
+line_length=90
+known_third_party='django,flask'
+known_first_party='sample_lib'
+indent=4
+sections='FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER'
+no_lines_before='LOCALFOLDER'
+
+[tool.mypy]
+exclude="^(tests|testing|data|scripts)$"
+namespace_packages=true
+explicit_package_bases=true
+ignore_missing_imports=true
+install_types=true
+non_interactive=true
+no_warn_no_return=true
+no_strict_optional=true
