@@ -1,17 +1,16 @@
 [tool.poetry]
 name = "BVSAR-feature-extract"
 version = "0.1.0"
-description = "Extract individual feature data from BVSAR trail data store"
+description = "Extract individual feature data from BVSAR data stores"
 authors = []
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-fastapi = "^0.81.0"
-uvicorn = "^0.18.3"
+GDAL = "^3.5.1"
+pydantic = "^1.9.2"
 
 [tool.poetry.dev-dependencies]
-GDAL = "^3.5.1"
 pre-commit = "~2.20.0"
 
 [build-system]

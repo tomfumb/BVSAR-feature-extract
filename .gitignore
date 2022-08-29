@@ -165,5 +165,5 @@ cython_debug/
 .vscode
 
 # project-specific
-feature-extract/output/*
+feature-extract/.output/*
 !**/.gitkeep
