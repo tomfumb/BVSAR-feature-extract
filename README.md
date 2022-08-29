@@ -9,7 +9,7 @@ The following environment variables are mandatory:
 - `src_data_dir`: identifies the parent directory containing all supported datasets. Datasets should not be in sub-directories.
 
 The following environment variables are optional:
-- `out_data_dir`: identifies the directory used to store generated datasets, defaults to a hidden directory relative to source code location. This could be a tmp directory, however this directory acts as a cache to avoid unnecessary processing for repeat requests and therefore should not be cleared unless storage constraints require it.
+- `out_data_dir`: identifies the directory used to store generated datasets, defaults to tmp location.
 
 ## Development
 Requires Python >= 3.8 and Poetry. Python GDAL package requires prior install of dependencies (not managed in this project).
