@@ -1,17 +1,17 @@
 [tool.poetry]
-name = "feature_extract"
+name = "feature_extract_api"
 version = "0.1.0"
-description = "Extract individual feature data from BVSAR data stores"
+description = "API interface to extract individual feature data from BVSAR data stores"
 authors = []
 readme = "README.md"
 packages = [
-    { include = "feature_extract", from = "./src" },
+    { include = "feature_extract_api", from = "./src" },
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-GDAL = "^3.5.1"
-pydantic = "^1.9.2"
+fastapi = "^0.81.0"
+uvicorn = "^0.18.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "~7.1.2"

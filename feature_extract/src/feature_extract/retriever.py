@@ -20,9 +20,7 @@ handlers = {
 }
 
 
-def _get_name_for_export(
-    prefix: str, x_min: float, y_min: float, x_max: float, y_max: float
-) -> str:
+def _get_name_for_export(prefix: str, x_min: float, y_min: float, x_max: float, y_max: float) -> str:
     return f"{prefix}-{md5(dumps([x_min, y_min, x_max, y_max]).encode('UTF-8')).hexdigest()}"
 
 
@@ -44,7 +42,7 @@ def get_features_file_path(
         result_layer = result_datasource.CreateLayer(
             result_layer_name, geom_type=handlers[parameters.dataset].feature_type
         )
-        handlers[parameters.dataset].export_data(
+        handlers[parameters.dataset].dataset_provider.export_data(
             DatasetParameters(
                 lon_min=parameters.lon_min,
                 lon_max=parameters.lon_max,
@@ -62,9 +60,7 @@ def count_features(
 ) -> int:
     result_driver = ogr.GetDriverByName("Memory")
     result_datasource = result_driver.CreateDataSource("")
-    result_layer = result_datasource.CreateLayer(
-        result_layer_name, geom_type=handlers[parameters.dataset].feature_type
-    )
+    result_layer = result_datasource.CreateLayer(result_layer_name, geom_type=handlers[parameters.dataset].feature_type)
     handlers[parameters.dataset].dataset_provider.export_data(
         DatasetParameters(
             lon_min=parameters.lon_min,
