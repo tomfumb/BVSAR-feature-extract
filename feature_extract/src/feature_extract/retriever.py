@@ -20,11 +20,13 @@ handlers = {
 }
 
 
-def _get_name_for_export(prefix: str, x_min: float, y_min: float, x_max: float, y_max: float) -> str:
+def _get_name_for_export(
+    prefix: str, x_min: float, y_min: float, x_max: float, y_max: float
+) -> str:
     return f"{prefix}-{md5(dumps([x_min, y_min, x_max, y_max]).encode('UTF-8')).hexdigest()}"
 
 
-def get_features_as_string(
+def get_features_file_path(
     parameters: ExtractParameters,
 ) -> str:
     result_driver = ogr.GetDriverByName("GeoJSON")
@@ -37,7 +39,7 @@ def get_features_as_string(
     )
     result_filename = f"{result_filename_prefix}.json"
     result_path = path.join(result_dir_path, result_filename)
-    if not path.exists(result_path):
+    if not path.exists(result_path) or not parameters.permit_cache:
         result_datasource = result_driver.CreateDataSource(result_path)
         result_layer = result_datasource.CreateLayer(
             result_layer_name, geom_type=handlers[parameters.dataset].feature_type
@@ -52,8 +54,7 @@ def get_features_as_string(
             )
         )
 
-    with open(result_path) as f:
-        return f.read()
+    return result_path
 
 
 def count_features(
@@ -61,7 +62,9 @@ def count_features(
 ) -> int:
     result_driver = ogr.GetDriverByName("Memory")
     result_datasource = result_driver.CreateDataSource("")
-    result_layer = result_datasource.CreateLayer(result_layer_name, geom_type=handlers[parameters.dataset].feature_type)
+    result_layer = result_datasource.CreateLayer(
+        result_layer_name, geom_type=handlers[parameters.dataset].feature_type
+    )
     handlers[parameters.dataset].dataset_provider.export_data(
         DatasetParameters(
             lon_min=parameters.lon_min,

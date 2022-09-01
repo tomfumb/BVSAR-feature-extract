@@ -9,3 +9,6 @@ class DatasetParameters(BaseModel):
     lon_min: float
     lon_max: float
     result_layer: ogr.Layer
+
+    class Config:
+        arbitrary_types_allowed = True

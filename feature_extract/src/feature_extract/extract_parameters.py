@@ -10,3 +10,4 @@ class ExtractParameters(BaseModel):
     lon_min: float
     lon_max: float
     dataset: Dataset
+    permit_cache = True
