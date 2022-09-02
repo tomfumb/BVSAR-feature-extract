@@ -1,9 +1,10 @@
 from typing import List
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
 
 from feature_extract.datasets.dataset import Dataset
+from feature_extract.exceptions.unsupported_dataset import UnsupportedDatasetException
 from feature_extract.extract_parameters import ExtractParameters
 from feature_extract.retriever import count_features, get_features_file_path
 
@@ -22,7 +23,7 @@ async def export(dataset: Dataset, x_min: float, y_min: float, x_max: float, y_m
                 dataset=dataset,
             )
         ),
-        media_type="application/json",
+        media_type="application/geo+json",
     )
 
 
@@ -42,3 +43,11 @@ async def count(dataset: Dataset, x_min: float, y_min: float, x_max: float, y_ma
 @app.get("/list")
 async def export_types() -> List[str]:
     return [entry.value for entry in Dataset]
+
+
+@app.exception_handler(UnsupportedDatasetException)
+async def unicorn_exception_handler(_: Request, e: UnsupportedDatasetException):
+    return JSONResponse(
+        status_code=404,
+        content={"message": f"{e} dataset not handled"},
+    )

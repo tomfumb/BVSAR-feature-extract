@@ -7,3 +7,7 @@ class DatasetProvider(ABC):
     @abstractmethod
     def export_data(self, parameters: DatasetParameters) -> None:
         pass
+
+    @abstractmethod
+    def cache_key(self) -> str:
+        pass

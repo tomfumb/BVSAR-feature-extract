@@ -9,22 +9,17 @@ from feature_extract.datasets.dataset_provider import DatasetProvider
 from feature_extract.settings import settings
 
 
-class ResourceRoads(DatasetProvider):
+class Shelters(DatasetProvider):
+    def __init__(self):
+        self.gpkg_path = path.join(settings.src_data_dir, "local-features.gpkg")
+
     def export_data(self, parameters: DatasetParameters) -> None:
-        src_driver = ogr.GetDriverByName("OpenFileGDB")
-        src_datasource = src_driver.Open(
-            path.join(settings.src_data_dir, "FTEN_ROAD_SEGMENT_LINES_SVW.gdb")
-        )
-        src_layer = src_datasource.GetLayerByIndex(0)
+        src_driver = ogr.GetDriverByName("GPKG")
+        src_datasource = src_driver.Open(self.gpkg_path)
+        src_layer = src_datasource.GetLayerByName("shelters")
 
         def title_provider(feature: ogr.Feature) -> str:
-            name = feature.GetFieldAsString("MAP_LABEL")
-            status = (
-                " (retired)"
-                if feature.GetFieldAsString("LIFE_CYCLE_STATUS_CODE") == "RETIRED"
-                else ""
-            )
-            return f"{name}{status}"
+            return feature.GetFieldAsString("name")
 
         get_features_from_layer(
             src_layer,
@@ -36,5 +31,8 @@ class ResourceRoads(DatasetProvider):
             parameters.lat_max,
         )
 
+    def cache_key(self) -> str:
+        return str(path.getmtime(self.gpkg_path))
 
-register_handler(Dataset.resource_roads, ResourceRoads())
+
+register_handler(Dataset.shelters, Shelters())
