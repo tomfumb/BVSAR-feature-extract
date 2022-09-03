@@ -21,7 +21,7 @@ class Trails(DatasetProvider):
         def title_provider(feature: ogr.Feature) -> str:
             name = feature.GetFieldAsString("name")
             type = feature.GetFieldAsString("type")
-            suffix = " (type)" if type else ""
+            suffix = f" ({type})" if type else ""
             return f"{name}{suffix}"
 
         get_features_from_layer(
