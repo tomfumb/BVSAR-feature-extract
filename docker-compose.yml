@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+    image: tomfumb/bvsar-feature-extract-api
+    ports:
+      - 8023:80

@@ -14,6 +14,6 @@ COPY feature_extract feature_extract
 COPY feature_extract_api feature_extract_api
 COPY pyproject.toml .
 
-RUN poetry install --no-dev
+RUN poetry install --only main
 
-CMD [ "feature_extract_api.app:app", "--host", "0.0.0.0", "--port", "80" ]
+CMD [ "poetry", "run", "uvicorn", "feature_extract_api.app:app", "--host", "0.0.0.0", "--port", "80" ]
