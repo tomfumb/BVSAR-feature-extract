@@ -60,8 +60,7 @@ def get_features_from_layer(
     title_field.SetWidth(title_field_width)
     destination_layer.CreateField(id_field)
     destination_layer.CreateField(title_field)
-    feature = result_layer.GetNextFeature()
-    while feature is not None:
+    while feature := result_layer.GetNextFeature():
         geometry_ref = feature.GetGeometryRef()
         new_geometry = geometry_ref.Clone()
         new_feature = ogr.Feature(destination_layer.GetLayerDefn())
@@ -71,4 +70,3 @@ def get_features_from_layer(
             title_field_name, title_provider(feature)[0:title_field_width]
         )
         destination_layer.CreateFeature(new_feature)
-        feature = result_layer.GetNextFeature()
