@@ -32,7 +32,7 @@ def get_features_file_path(
     )
     result_filename = f"{result_filename_prefix}.json"
     result_path = path.join(result_dir_path, result_filename)
-    if not path.exists(result_path) or not parameters.permit_cache:
+    if not path.exists(result_path):
         result_datasource = result_driver.CreateDataSource(result_path)
         result_layer = result_datasource.CreateLayer(
             result_layer_name, geom_type=handlers[parameters.dataset].feature_type
