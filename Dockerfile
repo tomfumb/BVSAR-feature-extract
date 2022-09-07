@@ -16,4 +16,6 @@ COPY pyproject.toml .
 
 RUN poetry install --only main
 
+ENV src_data_dir=/app/feature_extract/data
+
 CMD [ "poetry", "run", "uvicorn", "feature_extract_api.app:app", "--host", "0.0.0.0", "--port", "80" ]
