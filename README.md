@@ -12,5 +12,44 @@ The following environment variables are optional:
 - `out_data_dir`: identifies the directory used to store generated datasets, defaults to tmp location.
 
 ## Development
-Requires Python >= 3.8 and Poetry. Python GDAL package requires prior install of dependencies (not managed in this project).
-- `scripts/init.sh` to install dependencies and configure pre-commit hooks
+Assumes Python >= 3.8.
+
+If no local debugging is required, and all development work is exercised exclusively via automated tests, no additional dependencies are required.
+- `scripts/test.sh` to execute tests
+
+### Debugging
+If local debugging is required, Poetry and GDAL must also be installed (tested with GDAL 3.5.1)
+- `scripts/local.sh` to install dependencies and configure pre-commit hooks
+
+#### Sample .vscode/launch.json
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "api",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "feature_extract_api.app:app",
+                "--host", "0.0.0.0",
+                "--port", "8123",
+                "--reload"
+            ],
+            "env": {
+                "src_data_dir": "/home/user/data/BVSAR/feature_extract"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }, {
+            "name": "pytest",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
+```

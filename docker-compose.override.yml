@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  api:
+    image: tomfumb/bvsar-feature-extract-api
+    ports:
+      - 8023:80
+    volumes:
+      - type: bind
+        source: ./feature_extract/data
+        target: /app/feature_extract/data

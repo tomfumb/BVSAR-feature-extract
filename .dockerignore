@@ -1,0 +1,3 @@
+feature_extract/tests
+feature_extract_api/tests
+**/poetry.lock
