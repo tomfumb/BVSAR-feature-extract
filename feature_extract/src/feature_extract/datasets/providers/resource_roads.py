@@ -1,12 +1,14 @@
 from os import path
+from typing import Final
 
 from osgeo import ogr
 
 from feature_extract.common import get_features_from_layer, register_handler
-from feature_extract.datasets.dataset import Dataset
 from feature_extract.datasets.dataset_parameters import DatasetParameters
 from feature_extract.datasets.dataset_provider import DatasetProvider
 from feature_extract.settings import settings
+
+DATASET_NAME: Final = "Resource Roads"
 
 
 class ResourceRoads(DatasetProvider):
@@ -37,4 +39,4 @@ class ResourceRoads(DatasetProvider):
         return str(path.getmtime(path.join(self.fgdb_path, "timestamps")))
 
 
-register_handler(Dataset.resource_roads, ResourceRoads())
+register_handler(DATASET_NAME, ResourceRoads())

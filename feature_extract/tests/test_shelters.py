@@ -7,7 +7,7 @@ from tests.common import get_test_data_dir, use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
-    from feature_extract.datasets.dataset import Dataset
+    from feature_extract.datasets.providers.shelters import DATASET_NAME as SHELTERS
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
 
@@ -17,7 +17,7 @@ extract_parameters = ExtractParameters(
     lon_max=102,
     lat_min=-45,
     lat_max=-44,
-    dataset=Dataset.shelters,
+    dataset=SHELTERS,
 )
 
 test_feature_type = "test feature"
@@ -42,9 +42,7 @@ def setup_function():
         feature.SetGeometry(shape)
         shelters_layer.CreateFeature(feature)
 
-    assert shelters_layer.GetFeatureCount() == len(
-        list(test_features.values())
-    ), "test setup problem creating features"
+    assert shelters_layer.GetFeatureCount() == len(list(test_features.values())), "test setup problem creating features"
 
 
 def teardown_function():

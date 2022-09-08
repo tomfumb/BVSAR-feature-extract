@@ -7,7 +7,7 @@ from tests.common import get_test_data_dir, use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
-    from feature_extract.datasets.dataset import Dataset
+    from feature_extract.datasets.providers.trails import DATASET_NAME as TRAILS
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
 
@@ -17,7 +17,7 @@ extract_parameters = ExtractParameters(
     lon_max=102,
     lat_min=-45,
     lat_max=-44,
-    dataset=Dataset.trails,
+    dataset=TRAILS,
 )
 
 test_feature_type = "test feature"
@@ -44,9 +44,7 @@ def setup_function():
         feature.SetGeometry(shape)
         trails_layer.CreateFeature(feature)
 
-    assert trails_layer.GetFeatureCount() == len(
-        list(test_features.values())
-    ), "test setup problem creating features"
+    assert trails_layer.GetFeatureCount() == len(list(test_features.values())), "test setup problem creating features"
 
 
 def teardown_function():
@@ -81,8 +79,6 @@ def test_trails_features():
             assert feature_wkt == matchable_string(test_features["enclosed"])
         elif title == f"overlapping ({test_feature_type})":
             # original geometry will be clipped at export bbox edge
-            assert feature_wkt == matchable_string(
-                "LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)"
-            )
+            assert feature_wkt == matchable_string("LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)")
         else:
             raise Exception("Unexpected feature returned")

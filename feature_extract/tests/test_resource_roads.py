@@ -12,7 +12,9 @@ from tests.common import use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
-    from feature_extract.datasets.dataset import Dataset
+    from feature_extract.datasets.providers.resource_roads import (
+        DATASET_NAME as RESOURCE_ROADS,
+    )
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
 
@@ -22,7 +24,7 @@ extract_parameters = ExtractParameters(
     lon_max=-127.40352,
     lat_min=54.78662,
     lat_max=54.79261,
-    dataset=Dataset.resource_roads,
+    dataset=RESOURCE_ROADS,
 )
 
 
@@ -49,20 +51,13 @@ def test_resource_roads_features():
             "vertices": 8,
         },
     ]
-    assert (
-        len(expected_features) == result_layer.GetFeatureCount()
-    ), "incorrect number of features returned"
+    assert len(expected_features) == result_layer.GetFeatureCount(), "incorrect number of features returned"
     found_feature_count = 0
     while result_feature := result_layer.GetNextFeature():
         feature_dict = loads(result_feature.ExportToJson())
         title = feature_dict["properties"]["title"]
         vertices = len(feature_dict["geometry"]["coordinates"])
         for expected_feature in expected_features:
-            if (
-                title == expected_feature["title"]
-                and vertices == expected_feature["vertices"]
-            ):
+            if title == expected_feature["title"] and vertices == expected_feature["vertices"]:
                 found_feature_count += 1
-    assert found_feature_count == len(
-        expected_features
-    ), "returned features were not as expected"
+    assert found_feature_count == len(expected_features), "returned features were not as expected"

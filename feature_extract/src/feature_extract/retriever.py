@@ -11,7 +11,9 @@ from feature_extract.exceptions.unsupported_dataset import UnsupportedDatasetExc
 from feature_extract.extract_parameters import ExtractParameters
 
 
-def _get_name_for_export(prefix: str, cache_key: str, x_min: float, y_min: float, x_max: float, y_max: float) -> str:
+def _get_name_for_export(
+    prefix: str, cache_key: str, x_min: float, y_min: float, x_max: float, y_max: float
+) -> str:
     return f"{prefix}-{cache_key}-{md5(dumps([x_min, y_min, x_max, y_max]).encode('UTF-8')).hexdigest()}"
 
 
@@ -23,7 +25,7 @@ def get_features_file_path(
     provider = handlers[parameters.dataset].dataset_provider
     result_driver = ogr.GetDriverByName("GeoJSON")
     result_filename_prefix = _get_name_for_export(
-        sub(r"[^A-Z0-9\-_]+", "-", parameters.dataset.value, flags=IGNORECASE).lower(),
+        sub(r"[^A-Z0-9\-_]+", "-", parameters.dataset, flags=IGNORECASE).lower(),
         provider.cache_key(),
         parameters.lon_min,
         parameters.lat_min,
@@ -57,7 +59,9 @@ def count_features(
         raise UnsupportedDatasetException(parameters.dataset)
     result_driver = ogr.GetDriverByName("Memory")
     result_datasource = result_driver.CreateDataSource("")
-    result_layer = result_datasource.CreateLayer(result_layer_name, geom_type=handlers[parameters.dataset].feature_type)
+    result_layer = result_datasource.CreateLayer(
+        result_layer_name, geom_type=handlers[parameters.dataset].feature_type
+    )
     handlers[parameters.dataset].dataset_provider.export_data(
         DatasetParameters(
             lon_min=parameters.lon_min,

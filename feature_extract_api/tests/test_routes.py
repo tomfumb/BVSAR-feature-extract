@@ -6,7 +6,10 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from feature_extract.datasets.dataset import Dataset
+from feature_extract.common import list_datasets
+from feature_extract.datasets.providers.resource_roads import (
+    DATASET_NAME as RESOURCE_ROADS,
+)
 from feature_extract.extract_parameters import ExtractParameters
 from feature_extract_api.app import app
 
@@ -17,10 +20,7 @@ def test_list():
     response = client.get("/list")
     assert response.status_code == 200
     response_datasets = response.json()
-    assert len(response_datasets) == len(Dataset)
-    for dataset_value in response_datasets:
-        # should not raise exception
-        Dataset(dataset_value)
+    assert len(response_datasets) == len(list_datasets())
 
 
 @mock.patch("feature_extract_api.app.count_features")
@@ -29,7 +29,7 @@ def test_count_features(
 ):
     count = 3
     count_features_mock.return_value = count
-    dataset, x_min, x_max, y_min, y_max = Dataset.resource_roads, -180, 180, -90, 90
+    dataset, x_min, x_max, y_min, y_max = RESOURCE_ROADS, -180, 180, -90, 90
     response = client.get(f"/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}")
     assert response.status_code == 200
     assert response.json() == count
@@ -53,7 +53,7 @@ def test_export_features(
     with open(path.join(export_file_path), "w") as f:
         f.write(dumps(export_content))
     get_features_file_path_mock.return_value = export_file_path
-    dataset, x_min, x_max, y_min, y_max = Dataset.resource_roads, -180, 180, -90, 90
+    dataset, x_min, x_max, y_min, y_max = RESOURCE_ROADS, -180, 180, -90, 90
     response = client.get(f"/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}")
     assert response.status_code == 200
     assert response.json() == export_content

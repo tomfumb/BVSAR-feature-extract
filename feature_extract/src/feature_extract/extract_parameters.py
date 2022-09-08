@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-from feature_extract.datasets.dataset import Dataset
-
 
 class ExtractParameters(BaseModel):
 
@@ -9,4 +7,4 @@ class ExtractParameters(BaseModel):
     lat_max: float
     lon_min: float
     lon_max: float
-    dataset: Dataset
+    dataset: str

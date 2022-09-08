@@ -1,12 +1,14 @@
 from os import path
+from typing import Final
 
 from osgeo import ogr
 
 from feature_extract.common import get_features_from_layer, register_handler
-from feature_extract.datasets.dataset import Dataset
 from feature_extract.datasets.dataset_parameters import DatasetParameters
 from feature_extract.datasets.dataset_provider import DatasetProvider
 from feature_extract.settings import settings
+
+DATASET_NAME: Final = "Shelters"
 
 
 class Shelters(DatasetProvider):
@@ -35,4 +37,4 @@ class Shelters(DatasetProvider):
         return str(path.getmtime(self.gpkg_path))
 
 
-register_handler(Dataset.shelters, Shelters())
+register_handler(DATASET_NAME, Shelters())
