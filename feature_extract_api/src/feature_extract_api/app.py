@@ -15,7 +15,11 @@ auth = HTTPBasic()
 
 
 def check_credentials(credentials: HTTPBasicCredentials = Depends(auth)):
-    print(f"checking with {settings.creds_hash}")
+    if not settings.creds_hash:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="API credentials are not configured",
+        )
     if not checkpw(
         f"{credentials.username}:{credentials.password}".encode(),
         settings.creds_hash.encode(),

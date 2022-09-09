@@ -6,12 +6,5 @@ services:
       args:
         POETRY_INSTALL_SUFFIX: ""
     image: tomfumb/bvsar-feature-extract-api-test
-    volumes:
-      - type: bind
-        source: ./feature_extract/tests
-        target: /app/feature_extract/tests
-      - type: bind
-        source: ./feature_extract_api/tests
-        target: /app/feature_extract_api/tests
     environment:
       src_data_dir: /app/feature_extract/tests/data
