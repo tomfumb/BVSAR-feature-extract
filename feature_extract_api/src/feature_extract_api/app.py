@@ -1,18 +1,35 @@
 from typing import List
 
-from fastapi import FastAPI, Request
+from bcrypt import checkpw
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from feature_extract.common import list_datasets
 from feature_extract.exceptions.unsupported_dataset import UnsupportedDatasetException
 from feature_extract.extract_parameters import ExtractParameters
 from feature_extract.retriever import count_features, get_features_file_path
+from feature_extract_api.settings import settings
 
-app = FastAPI(docs_url="/")
+auth = HTTPBasic()
+
+
+def check_credentials(credentials: HTTPBasicCredentials = Depends(auth)):
+    print(f"checking with {settings.creds_hash}")
+    if not checkpw(
+        f"{credentials.username}:{credentials.password}".encode(),
+        settings.creds_hash.encode(),
+    ):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+app = FastAPI(docs_url="/", dependencies=[Depends(check_credentials)])
 
 
 @app.get("/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}")
-async def export(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> FileResponse:
+async def export(
+    dataset: str, x_min: float, y_min: float, x_max: float, y_max: float
+) -> FileResponse:
     return FileResponse(
         get_features_file_path(
             ExtractParameters(
@@ -28,7 +45,9 @@ async def export(dataset: str, x_min: float, y_min: float, x_max: float, y_max: 
 
 
 @app.get("/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}")
-async def count(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> int:
+async def count(
+    dataset: str, x_min: float, y_min: float, x_max: float, y_max: float
+) -> int:
     return count_features(
         ExtractParameters(
             lon_min=x_min,

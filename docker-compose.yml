@@ -4,3 +4,5 @@ services:
   api:
     build:
       context: .
+    environment:
+      creds_hash: ${creds_hash}

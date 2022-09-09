@@ -7,6 +7,7 @@ Provides an interface to count and extract features within a given bounding box,
 ### Environment
 The following environment variables are mandatory:
 - `src_data_dir`: identifies the parent directory containing all supported datasets. Datasets should not be in sub-directories.
+- `creds_hash`: hash of a valid username / password. Execute `scripts/creds.sh --user <username> --pass <password>` to generate a valid hash.
 
 The following environment variables are optional:
 - `out_data_dir`: identifies the directory used to store generated datasets, defaults to tmp location.
@@ -38,7 +39,8 @@ If local debugging is required, Poetry and GDAL must also be installed (tested w
                 "--reload"
             ],
             "env": {
-                "src_data_dir": "/home/user/data/BVSAR/feature_extract"
+                "src_data_dir": "/home/user/data/BVSAR/feature_extract",
+                "creds_hash": "hash"
             },
             "console": "integratedTerminal",
             "justMyCode": false
