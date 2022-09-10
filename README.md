@@ -3,6 +3,8 @@ API to extract individual feature data from BVSAR data stores.
 
 Provides an interface to count and extract features within a given bounding box, clipped to that bounding box, from a specified dataset.
 
+[![Tests](https://github.com/tomfumb/BVSAR-feature-extract/actions/workflows/ci_actions.yml/badge.svg?branch=main)](https://github.com/tomfumb/BVSAR-feature-extract/actions/workflows/ci_actions.yml)
+
 ## Execution
 ### Environment
 The following environment variables are mandatory:
