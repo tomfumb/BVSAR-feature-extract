@@ -21,9 +21,7 @@ auth_token = b64encode(f"{username}:{password}".encode()).decode()
 headers = {"Authorization": f"Basic {auth_token}"}
 
 with MonkeyPatch.context() as mp:
-    mp.setenv(
-        "creds_hash", hashpw(f"{username}:{password}".encode(), gensalt()).decode()
-    )
+    mp.setenv("creds_hash", hashpw(f"{username}:{password}".encode(), gensalt()).decode())
     from feature_extract_api.app import app
 
 
@@ -44,9 +42,7 @@ def test_count_features(
     count = 3
     count_features_mock.return_value = count
     dataset, x_min, x_max, y_min, y_max = RESOURCE_ROADS, -180, 180, -90, 90
-    response = client.get(
-        f"/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}", headers=headers
-    )
+    response = client.get(f"/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}", headers=headers)
     assert response.status_code == 200
     assert response.json() == count
     count_features_mock.assert_called_once_with(
@@ -70,9 +66,7 @@ def test_export_features(
         f.write(dumps(export_content))
     get_features_file_path_mock.return_value = export_file_path
     dataset, x_min, x_max, y_min, y_max = RESOURCE_ROADS, -180, 180, -90, 90
-    response = client.get(
-        f"/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}", headers=headers
-    )
+    response = client.get(f"/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}", headers=headers)
     assert response.status_code == 200
     assert response.json() == export_content
     get_features_file_path_mock.assert_called_once_with(
