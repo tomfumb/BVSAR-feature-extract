@@ -4,6 +4,7 @@ from bcrypt import checkpw
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from mangum import Mangum
 
 from feature_extract.common import list_datasets
 from feature_extract.exceptions.unsupported_dataset import UnsupportedDatasetException
@@ -31,7 +32,9 @@ app = FastAPI(docs_url="/", dependencies=[Depends(check_credentials)])
 
 
 @app.get("/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}")
-async def export(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> FileResponse:
+async def export(
+    dataset: str, x_min: float, y_min: float, x_max: float, y_max: float
+) -> FileResponse:
     return FileResponse(
         get_features_file_path(
             ExtractParameters(
@@ -47,7 +50,9 @@ async def export(dataset: str, x_min: float, y_min: float, x_max: float, y_max: 
 
 
 @app.get("/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}")
-async def count(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> int:
+async def count(
+    dataset: str, x_min: float, y_min: float, x_max: float, y_max: float
+) -> int:
     return count_features(
         ExtractParameters(
             lon_min=x_min,
@@ -70,3 +75,6 @@ async def unicorn_exception_handler(_: Request, e: UnsupportedDatasetException):
         status_code=404,
         content={"message": f"{e} dataset not handled"},
     )
+
+
+handler = Mangum(app)

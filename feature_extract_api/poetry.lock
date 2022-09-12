@@ -103,6 +103,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "mangum"
+version = "0.15.1"
+description = "AWS Lambda support for ASGI applications"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+typing-extensions = "*"
+
+[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -236,7 +247,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.4.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8"
-content-hash = "2229e791de56a8fb80861f62c0b8e673329b952bca9cc9b3f3e4ec6355ad1562"
+content-hash = "9d9d67dfb485821ab30489bb6667502be262466248d8aeb30056a67234dd1927"
 
 [metadata.files]
 anyio = [
@@ -284,6 +295,10 @@ idna = [
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
+]
+mangum = [
+    {file = "mangum-0.15.1-py3-none-any.whl", hash = "sha256:b9b63cc303ab6fd07c37c6d7c59fdd712b0ad07ef858faff9812be2a12d4d2ca"},
+    {file = "mangum-0.15.1.tar.gz", hash = "sha256:dafd45692fb74bbdaad44d32afc07ed393f6f9e6150b880b5b78d0c4cd0f392b"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
