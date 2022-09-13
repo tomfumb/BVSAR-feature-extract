@@ -13,24 +13,16 @@ DATASET_NAME: Final = "Resource Roads"
 
 class ResourceRoads(DatasetProvider):
     def __init__(self):
-        self.fgdb_path = path.join(
-            settings.src_data_dir, "FTEN_ROAD_SEGMENT_LINES_SVW.gdb"
-        )
+        self.fgdb_path = path.join(settings.src_data_dir, "FTEN_ROAD_SEGMENT_LINES_SVW.gdb")
 
     def export_data(self, parameters: DatasetParameters) -> None:
         src_driver = ogr.GetDriverByName("OpenFileGDB")
         src_datasource = src_driver.Open(self.fgdb_path)
-        src_layer = src_datasource.GetLayerByName(
-            "WHSE_FOREST_TENURE_FTEN_ROAD_SEGMENT_LINES_SVW"
-        )
+        src_layer = src_datasource.GetLayerByIndex(0)
 
         def title_provider(feature: ogr.Feature) -> str:
             name = feature.GetFieldAsString("MAP_LABEL")
-            status = (
-                " (retired)"
-                if feature.GetFieldAsString("LIFE_CYCLE_STATUS_CODE") == "RETIRED"
-                else ""
-            )
+            status = " (retired)" if feature.GetFieldAsString("LIFE_CYCLE_STATUS_CODE") == "RETIRED" else ""
             return f"{name}{status}"
 
         get_features_from_layer(
