@@ -5,3 +5,7 @@ services:
     image: tomfumb/bvsar-feature-extract-api
     ports:
       - 8023:80
+
+  minio:
+    ports:
+      - 9000:9000
