@@ -7,7 +7,7 @@ from tests.common import get_test_data_dir, use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
-    from feature_extract.datasets.providers.trails import DATASET_NAME as TRAILS
+    from feature_extract.datasets.providers.trails import Trails
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
 
@@ -17,7 +17,7 @@ extract_parameters = ExtractParameters(
     lon_max=102,
     lat_min=-45,
     lat_max=-44,
-    dataset=TRAILS,
+    dataset=Trails().get_dataset_name(),
 )
 
 test_feature_type = "test feature"

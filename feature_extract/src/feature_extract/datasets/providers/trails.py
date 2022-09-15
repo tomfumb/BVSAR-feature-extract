@@ -1,5 +1,4 @@
 from os import path
-from typing import Final
 
 from osgeo import ogr
 
@@ -8,13 +7,12 @@ from feature_extract.datasets.dataset_parameters import DatasetParameters
 from feature_extract.datasets.dataset_provider import DatasetProvider
 from feature_extract.settings import settings
 
-DATASET_NAME: Final = "Trails"
-
 
 class Trails(DatasetProvider):
     def __init__(self):
+        self.dataset_name = "Trails"
         self.file_name = "local-features.gpkg"
-        self.layer_name = "shelters"
+        self.layer_name = "trails"
         self.gpkg_path = path.join(settings.src_data_dir, self.file_name)
 
     def export_data(self, parameters: DatasetParameters) -> None:
@@ -41,6 +39,9 @@ class Trails(DatasetProvider):
     def cache_key(self) -> str:
         return str(path.getmtime(self.gpkg_path))
 
+    def get_dataset_name(self) -> str:
+        return self.dataset_name
+
     def get_file_name(self) -> str:
         return self.file_name
 
@@ -48,4 +49,4 @@ class Trails(DatasetProvider):
         return self.layer_name
 
 
-register_handler(DATASET_NAME, Trails())
+register_handler(Trails())

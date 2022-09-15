@@ -18,8 +18,8 @@ result_layer_name: str = "result_layer"
 handlers = {}
 
 
-def register_handler(dataset: str, handler: DatasetProvider) -> None:
-    handlers[dataset] = ExtractHandler(
+def register_handler(handler: DatasetProvider) -> None:
+    handlers[handler.get_dataset_name()] = ExtractHandler(
         dataset_provider=handler,
         feature_type=ogr.wkbMultiLineString,
     )
@@ -53,9 +53,7 @@ def get_features_from_layer(
     clip_layer.CreateFeature(feature)
 
     result_datasource = memory_driver.CreateDataSource("")
-    result_layer = result_datasource.CreateLayer(
-        "result_layer", geom_type=ogr.wkbMultiLineString
-    )
+    result_layer = result_datasource.CreateLayer("result_layer", geom_type=ogr.wkbMultiLineString)
     ogr.Layer.Clip(source_layer, clip_layer, result_layer)
 
     id_field = ogr.FieldDefn(id_field_name, ogr.OFTInteger64)
@@ -69,9 +67,7 @@ def get_features_from_layer(
         new_feature = ogr.Feature(destination_layer.GetLayerDefn())
         new_feature.SetGeometryDirectly(new_geometry)
         new_feature.SetField(id_field_name, feature.GetFID())
-        new_feature.SetField(
-            title_field_name, title_provider(feature)[0:title_field_width]
-        )
+        new_feature.SetField(title_field_name, title_provider(feature)[0:title_field_width])
         destination_layer.CreateFeature(new_feature)
 
 

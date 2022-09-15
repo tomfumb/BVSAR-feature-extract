@@ -13,6 +13,10 @@ class DatasetProvider(ABC):
         pass
 
     @abstractmethod
+    def get_dataset_name(self) -> str:
+        pass
+
+    @abstractmethod
     def get_file_name(self) -> str:
         pass
 
