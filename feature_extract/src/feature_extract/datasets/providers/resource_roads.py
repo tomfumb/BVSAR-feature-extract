@@ -25,11 +25,7 @@ class ResourceRoads(DatasetProvider):
 
         def title_provider(feature: ogr.Feature) -> str:
             name = feature.GetFieldAsString("MAP_LABEL")
-            status = (
-                " (retired)"
-                if feature.GetFieldAsString("LIFE_CYCLE_STATUS_CODE") == "RETIRED"
-                else ""
-            )
+            status = " (retired)" if feature.GetFieldAsString("LIFE_CYCLE_STATUS_CODE") == "RETIRED" else ""
             return f"{name}{status}"
 
         get_features_from_layer(

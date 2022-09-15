@@ -49,9 +49,7 @@ def setup_function():
         layer.CreateFeature(feature)
 
     assert len(test_features.values()) > 0, "no test features"
-    assert layer.GetFeatureCount() == len(
-        test_features.values()
-    ), "test setup problem creating features"
+    assert layer.GetFeatureCount() == len(test_features.values()), "test setup problem creating features"
     datasource.FlushCache()
 
 

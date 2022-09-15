@@ -52,9 +52,7 @@ def setup_function():
         layer.CreateFeature(feature)
 
     assert len(test_features.values()) > 0, "no test features"
-    assert layer.GetFeatureCount() == len(
-        test_features.values()
-    ), "test setup problem creating features"
+    assert layer.GetFeatureCount() == len(test_features.values()), "test setup problem creating features"
     datasource.FlushCache()
 
 
@@ -80,9 +78,7 @@ def test_trails_features():
 
     def matchable_wkt_string(input: str) -> str:
         # OGR will return an input multilinestring as a linestring if it only contains one linestring
-        return re.sub(
-            r"\(\(", "(", re.sub(r"\)\)", ")", re.sub(r"(^MULTI|\s)", "", input))
-        )
+        return re.sub(r"\(\(", "(", re.sub(r"\)\)", ")", re.sub(r"(^MULTI|\s)", "", input)))
 
     while result_feature := result_layer.GetNextFeature():
         feature_geometry = result_feature.GetGeometryRef()
@@ -93,8 +89,6 @@ def test_trails_features():
             assert feature_wkt == matchable_wkt_string(test_features["enclosed"])
         elif title == f"overlapping ({test_feature_type})":
             # original geometry will be clipped at export bbox edge
-            assert feature_wkt == matchable_wkt_string(
-                "LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)"
-            )
+            assert feature_wkt == matchable_wkt_string("LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)")
         else:
             raise Exception("Unexpected feature returned")

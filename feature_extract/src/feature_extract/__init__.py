@@ -10,9 +10,7 @@ _current_dirname = _current_path.split(path.sep)[-1]
 
 for file_path in [
     filename
-    for filename in glob(
-        path.join(_current_path, "datasets", "providers", "**", "*.py"), recursive=True
-    )
+    for filename in glob(path.join(_current_path, "datasets", "providers", "**", "*.py"), recursive=True)
     if filename != "__init__.py"
 ]:
     module_path = sub(r"^/", "", path.dirname(file_path).replace(_current_path, ""))
