@@ -13,12 +13,14 @@ DATASET_NAME: Final = "Trails"
 
 class Trails(DatasetProvider):
     def __init__(self):
-        self.gpkg_path = path.join(settings.src_data_dir, "local-features.gpkg")
+        self.file_name = "local-features.gpkg"
+        self.layer_name = "shelters"
+        self.gpkg_path = path.join(settings.src_data_dir, self.file_name)
 
     def export_data(self, parameters: DatasetParameters) -> None:
         src_driver = ogr.GetDriverByName("GPKG")
         src_datasource = src_driver.Open(self.gpkg_path)
-        src_layer = src_datasource.GetLayerByName("trails")
+        src_layer = src_datasource.GetLayerByName(self.layer_name)
 
         def title_provider(feature: ogr.Feature) -> str:
             name = feature.GetFieldAsString("name")
@@ -38,6 +40,12 @@ class Trails(DatasetProvider):
 
     def cache_key(self) -> str:
         return str(path.getmtime(self.gpkg_path))
+
+    def get_file_name(self) -> str:
+        return self.file_name
+
+    def get_layer_name(self) -> str:
+        return self.layer_name
 
 
 register_handler(DATASET_NAME, Trails())

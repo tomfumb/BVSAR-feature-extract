@@ -11,3 +11,11 @@ class DatasetProvider(ABC):
     @abstractmethod
     def cache_key(self) -> str:
         pass
+
+    @abstractmethod
+    def get_file_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_layer_name(self) -> str:
+        pass
