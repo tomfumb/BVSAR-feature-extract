@@ -1,5 +1,3 @@
-from os import path
-
 from osgeo import ogr
 
 from feature_extract.common import get_features_from_layer, register_handler
@@ -18,13 +16,11 @@ class ResourceRoads(DatasetProvider):
         self.dataset_name = "Resource Roads"
         self.file_name = "FTEN_ROAD_SECTION_LINES_SVW.gdb"
         self.layer_name = "WHSE_FOREST_TENURE_FTEN_ROAD_SECTION_LINES_SVW"
-        self.fgb_file = f"{self.layer_name}.fgb"
-        self.fgdb_path = path.join(settings.src_data_dir, self.file_name)
+        self.fgb_path = f"{settings.data_access_prefix}/{self.layer_name}.fgb"
 
     def export_data(self, parameters: DatasetParameters) -> None:
         src_driver = ogr.GetDriverByName("FlatGeobuf")
-        src_url = f"/vsis3/{settings.s3_bucket_name}/{self.fgb_file}"
-        src_datasource = src_driver.Open(src_url)
+        src_datasource = src_driver.Open(self.fgb_path)
         src_layer = src_datasource.GetLayerByIndex(0)
 
         def title_provider(feature: ogr.Feature) -> str:
@@ -46,9 +42,6 @@ class ResourceRoads(DatasetProvider):
             parameters.lat_max,
         )
 
-    def cache_key(self) -> str:
-        return str(path.getmtime(path.join(self.fgdb_path, "timestamps")))
-
     def get_dataset_name(self) -> str:
         return self.dataset_name
 
@@ -57,6 +50,9 @@ class ResourceRoads(DatasetProvider):
 
     def get_layer_name(self) -> str:
         return self.layer_name
+
+    def get_file_path(self) -> str:
+        return self.fgb_path
 
 
 register_handler(ResourceRoads())

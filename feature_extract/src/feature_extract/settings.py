@@ -7,7 +7,7 @@ from pydantic import BaseSettings
 class _Settings(BaseSettings):
     src_data_dir: str = path.join(path.dirname(__file__), "..", "..", "data")
     out_data_dir: str = gettempdir()
-    s3_bucket_name: str = "bvsar"
+    data_access_prefix: str
 
 
 settings = _Settings()

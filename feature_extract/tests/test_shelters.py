@@ -1,15 +1,17 @@
 from json import loads
-from os import path
+from os import remove
+from shutil import copyfile
 
 from osgeo import ogr
 from pytest import MonkeyPatch
-from tests.common import get_test_data_dir, use_test_data_dir
+from tests.common import use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
     from feature_extract.datasets.providers.shelters import Shelters
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
+    from feature_extract.settings import settings
 
 
 extract_parameters = ExtractParameters(
@@ -26,14 +28,19 @@ test_features = {
     "outside": "POINT (102.1 -43.9)",
 }
 
-data_path = path.join(get_test_data_dir(), "shelters.fgb")
-
+template_data_path = f"{settings.data_access_prefix}/shelters-template.fgb"
+data_path = f"{settings.data_access_prefix}/shelters.fgb"
 driver = ogr.GetDriverByName("FlatGeobuf")
-datasource = driver.Open(data_path, 1)
-layer = datasource.GetLayerByName("shelters")
+datasource = None
+layer = None
 
 
 def setup_function():
+    copyfile(template_data_path, data_path)
+    global datasource
+    datasource = driver.Open(data_path, 1)
+    global layer
+    layer = datasource.GetLayerByIndex(0)
     for key, value in test_features.items():
         feature = ogr.Feature(layer.GetLayerDefn())
         feature.SetField("name", key)
@@ -41,17 +48,19 @@ def setup_function():
         feature.SetGeometry(shape)
         layer.CreateFeature(feature)
 
+    assert len(test_features.values()) > 0, "no test features"
     assert layer.GetFeatureCount() == len(
-        list(test_features.values())
+        test_features.values()
     ), "test setup problem creating features"
+    datasource.FlushCache()
 
 
 def teardown_function():
-    fids = []
-    while test_feature := layer.GetNextFeature():
-        fids.append(test_feature.GetFID())
-    for fid in fids:
-        layer.DeleteFeature(fid)
+    global layer
+    layer = None
+    global datasource
+    datasource = None
+    remove(data_path)
 
 
 def test_shelters_count():
