@@ -5,6 +5,9 @@ services:
     image: tomfumb/bvsar-feature-extract-api
     ports:
       - 8023:80
+    environment:
+      GDAL_CONFIG_FILE: /app/feature_extract/gdal-local.ini=value
+    command: uvicorn feature_extract_api.app:app --host 0.0.0.0 --port 80 --reload
 
   minio:
     ports:

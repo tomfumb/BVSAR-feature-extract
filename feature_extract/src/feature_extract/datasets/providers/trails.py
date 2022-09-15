@@ -13,12 +13,14 @@ class Trails(DatasetProvider):
         self.dataset_name = "Trails"
         self.file_name = "local-features.gpkg"
         self.layer_name = "trails"
+        self.fgb_file = f"{self.layer_name}.fgb"
         self.gpkg_path = path.join(settings.src_data_dir, self.file_name)
 
     def export_data(self, parameters: DatasetParameters) -> None:
-        src_driver = ogr.GetDriverByName("GPKG")
-        src_datasource = src_driver.Open(self.gpkg_path)
-        src_layer = src_datasource.GetLayerByName(self.layer_name)
+        src_driver = ogr.GetDriverByName("FlatGeobuf")
+        src_url = f"/vsis3/{settings.s3_bucket_name}/{self.fgb_file}"
+        src_datasource = src_driver.Open(src_url)
+        src_layer = src_datasource.GetLayerByIndex(0)
 
         def title_provider(feature: ogr.Feature) -> str:
             name = feature.GetFieldAsString("name")

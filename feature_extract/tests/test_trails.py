@@ -27,32 +27,33 @@ test_features = {
     "outside": "LINESTRING (102.1 -43.9, 102.1 -43.1, 105.5 -42)",
 }
 
-gpkg_name = "local-features.gpkg"
-gpkg_path = path.join(get_test_data_dir(), gpkg_name)
+data_path = path.join(get_test_data_dir(), "trails.fgb")
 
-trails_driver = ogr.GetDriverByName("GPKG")
-trails_datasource = trails_driver.Open(gpkg_path, 1)
-trails_layer = trails_datasource.GetLayerByName("trails")
+driver = ogr.GetDriverByName("FlatGeobuf")
+datasource = driver.Open(data_path, 1)
+layer = datasource.GetLayerByName("trails")
 
 
 def setup_function():
     for key, value in test_features.items():
-        feature = ogr.Feature(trails_layer.GetLayerDefn())
+        feature = ogr.Feature(layer.GetLayerDefn())
         feature.SetField("name", key)
         feature.SetField("type", test_feature_type)
         shape = ogr.CreateGeometryFromWkt(value)
         feature.SetGeometry(shape)
-        trails_layer.CreateFeature(feature)
+        layer.CreateFeature(feature)
 
-    assert trails_layer.GetFeatureCount() == len(list(test_features.values())), "test setup problem creating features"
+    assert layer.GetFeatureCount() == len(
+        list(test_features.values())
+    ), "test setup problem creating features"
 
 
 def teardown_function():
     fids = []
-    while test_feature := trails_layer.GetNextFeature():
+    while test_feature := layer.GetNextFeature():
         fids.append(test_feature.GetFID())
     for fid in fids:
-        trails_layer.DeleteFeature(fid)
+        layer.DeleteFeature(fid)
 
 
 def test_trails_count():
@@ -79,6 +80,8 @@ def test_trails_features():
             assert feature_wkt == matchable_string(test_features["enclosed"])
         elif title == f"overlapping ({test_feature_type})":
             # original geometry will be clipped at export bbox edge
-            assert feature_wkt == matchable_string("LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)")
+            assert feature_wkt == matchable_string(
+                "LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)"
+            )
         else:
             raise Exception("Unexpected feature returned")

@@ -26,31 +26,32 @@ test_features = {
     "outside": "POINT (102.1 -43.9)",
 }
 
-gpkg_name = "local-features.gpkg"
-gpkg_path = path.join(get_test_data_dir(), gpkg_name)
+data_path = path.join(get_test_data_dir(), "shelters.fgb")
 
-shelters_driver = ogr.GetDriverByName("GPKG")
-shelters_datasource = shelters_driver.Open(gpkg_path, 1)
-shelters_layer = shelters_datasource.GetLayerByName("shelters")
+driver = ogr.GetDriverByName("FlatGeobuf")
+datasource = driver.Open(data_path, 1)
+layer = datasource.GetLayerByName("shelters")
 
 
 def setup_function():
     for key, value in test_features.items():
-        feature = ogr.Feature(shelters_layer.GetLayerDefn())
+        feature = ogr.Feature(layer.GetLayerDefn())
         feature.SetField("name", key)
         shape = ogr.CreateGeometryFromWkt(value)
         feature.SetGeometry(shape)
-        shelters_layer.CreateFeature(feature)
+        layer.CreateFeature(feature)
 
-    assert shelters_layer.GetFeatureCount() == len(list(test_features.values())), "test setup problem creating features"
+    assert layer.GetFeatureCount() == len(
+        list(test_features.values())
+    ), "test setup problem creating features"
 
 
 def teardown_function():
     fids = []
-    while test_feature := shelters_layer.GetNextFeature():
+    while test_feature := layer.GetNextFeature():
         fids.append(test_feature.GetFID())
     for fid in fids:
-        shelters_layer.DeleteFeature(fid)
+        layer.DeleteFeature(fid)
 
 
 def test_shelters_count():
