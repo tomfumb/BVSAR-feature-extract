@@ -2,15 +2,14 @@
 
 pushd $(dirname ${0})/..
 
-<<<<<<< HEAD
 layers_file=".bvsar-feature-extract-layers"
 stack_common="docker-compose -f docker-compose.conversion.yml"
 ${stack_common} build
 ${stack_common} run --rm api python -m feature_extract.util.output_layers "/output/${layers_file}"
 format=FlatGeobuf
 
-IFS=$'\n'       # make newlines the only separator
-set -f          # disable globbing
+IFS=$'\n'
+set -f
 for layer in $(cat < "/tmp/${layers_file}"); do
 
     echo
@@ -29,25 +28,5 @@ for layer in $(cat < "/tmp/${layers_file}"); do
         -v "${PWD}/feature_extract/data":/output \
         osgeo/gdal:ubuntu-small-3.5.1 \
         ogr2ogr -f ${format} "/output/${layer}.fgb" "/input/${input_file}" "${layer_name}"
-=======
-docker-compose build
-layers=($(docker-compose run --rm api python -m feature_extract.util.print_layers))
-format=FlatGeobuf
-
-for layer in ${layers[@]}; do
-
-    read -p "Path to source file for layer $layer: " source_file_path
-    read -p "Name of source layer for layer $layer [$layer]: " source_layer
-
-    input_mount="$(dirname $source_file_path)"
-    input_file="$(basename $source_file_path)"
-
-    docker run \
-        --rm \
-        -v $input_mount:/input \
-        -v ${PWD}/feature_extract/data:/output \
-        osgeo/gdal:ubuntu-small-3.5.1 \
-        ogr2ogr -f ${format} /output/${layer}.fgb /input/${input_file} ${source_layer:-$layer}
->>>>>>> a84d23a6810ee7b6c5749fb5b11f83c4f66881b2
 
 done
