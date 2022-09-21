@@ -7,11 +7,7 @@ def execute(
     output_path: str,
 ) -> None:
     with open(output_path, "w") as f:
-        f.writelines(
-            linesep.join(
-                [provider.get_layer_name() for provider in get_dataset_providers()]
-            )
-        )
+        f.writelines(linesep.join([provider.get_layer_name() for provider in get_dataset_providers()]))
         f.write(linesep)
 
 
