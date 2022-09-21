@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+
+  api:
+    build:
+      context: .
+    environment:
+      creds_hash: ""
+      data_access_prefix: ""
+    volumes:
+      - source: /tmp
+        target: /output
+        type: bind
