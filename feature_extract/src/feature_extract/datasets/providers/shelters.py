@@ -8,8 +8,8 @@ from feature_extract.settings import settings
 
 class Shelters(DatasetProvider):
     def __init__(self):
+        super().__init__()
         self.dataset_name = "Shelters"
-        self.file_name = "local-features.gpkg"
         self.layer_name = "shelters"
         self.fgb_path = f"{settings.data_access_prefix}/{self.layer_name}.fgb"
 

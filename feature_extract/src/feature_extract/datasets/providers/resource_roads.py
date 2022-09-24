@@ -8,13 +8,8 @@ from feature_extract.settings import settings
 
 class ResourceRoads(DatasetProvider):
     def __init__(self):
-
-        # TODO: need to remove self.file_name, but where will source for scripts/conversion.sh come from? Defaults with configurable override?  # noqa: E501
-        # layer name should be set to something custom during scripts/conversion to remove the dependency on the source file  # noqa: E501
-        # tests need updating to use this as a data source
-
+        super().__init__()
         self.dataset_name = "Resource Roads"
-        self.file_name = "FTEN_ROAD_SECTION_LINES_SVW.gdb"
         self.layer_name = "WHSE_FOREST_TENURE_FTEN_ROAD_SECTION_LINES_SVW"
         self.fgb_path = f"{settings.data_access_prefix}/{self.layer_name}.fgb"
 
@@ -40,9 +35,6 @@ class ResourceRoads(DatasetProvider):
 
     def get_dataset_name(self) -> str:
         return self.dataset_name
-
-    def get_file_name(self) -> str:
-        return self.file_name
 
     def get_layer_name(self) -> str:
         return self.layer_name

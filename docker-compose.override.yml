@@ -6,11 +6,17 @@ services:
     image: tomfumb/bvsar-feature-extract-api
     ports:
       - 8023:80
+    env_file:
+      - ./minio/.env.creds
     environment:
-      GDAL_CONFIG_FILE: /app/feature_extract/gdal-local.ini=value
+      # GDAL / FlatGeobuf config
+      AWS_S3_ENDPOINT: minio:9000
+      AWS_HTTPS: "NO"
+      AWS_VIRTUAL_HOSTING: "FALSE"
+      # API config
       data_access_prefix: /vsis3/bvsar
     command: uvicorn feature_extract_api.app:app --host 0.0.0.0 --port 80 --reload
 
   minio:
     ports:
-      - 9000:9000
+      - 9001:9000

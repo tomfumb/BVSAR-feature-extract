@@ -8,8 +8,8 @@ from feature_extract.settings import settings
 
 class Trails(DatasetProvider):
     def __init__(self):
+        super().__init__()
         self.dataset_name = "Trails"
-        self.file_name = "local-features.gpkg"
         self.layer_name = "trails"
         self.fgb_path = f"{settings.data_access_prefix}/{self.layer_name}.fgb"
 
@@ -36,9 +36,6 @@ class Trails(DatasetProvider):
 
     def get_dataset_name(self) -> str:
         return self.dataset_name
-
-    def get_file_name(self) -> str:
-        return self.file_name
 
     def get_layer_name(self) -> str:
         return self.layer_name
