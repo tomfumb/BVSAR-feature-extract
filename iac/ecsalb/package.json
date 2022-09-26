@@ -1,8 +1,8 @@
 {
-  "name": "iac",
+  "name": "ecsalb",
   "version": "0.1.0",
   "bin": {
-    "iac": "bin/iac.js"
+    "ecsalb": "bin/ecsalb.js"
   },
   "scripts": {
     "build": "tsc",
