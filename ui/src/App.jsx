@@ -10,9 +10,9 @@ export function App() {
     import.meta.env.VITE_IGNORE_AUTH ?? false
   );
   const [layersVisible, setLayersVisible] = useState({
-    layerOne: false,
-    layerTwo: false,
-    layerThree: false,
+    roads: true,
+    trails: true,
+    shelters: true,
   });
   const [mapBounds, setMapBounds] = useState(null);
 

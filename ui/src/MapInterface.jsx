@@ -7,9 +7,11 @@ import { geojson } from "flatgeobuf";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_GL_MAP;
 
-// TOM: CHANGE THIS URL ENDPOINT
 const roadSegments =
   "https://brian-search-rescue-test-bucket.s3.amazonaws.com/line-road-segments.fgb";
+
+// const roadSegments =
+//   "http://ecsal-albfa-1i6jhj514tazu-125558200.us-west-2.elb.amazonaws.com/Shelters/fgb";
 
 const shelterPoints =
   "https://brian-search-rescue-test-bucket.s3.amazonaws.com/point-shelters.fgb";
