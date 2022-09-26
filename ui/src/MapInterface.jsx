@@ -20,6 +20,13 @@ const trailSegments =
 function MapInterface({ setMapCenter, layersVisible }) {
   const mapRef = useRef(null);
 
+  // optionally show some meta-data about the FGB file
+  function handleHeaderMeta(headerMeta) {
+    const header = document.getElementById("header");
+    const formatter = new JSONFormatter(headerMeta, 10);
+    header.appendChild(formatter.render());
+  }
+
   useEffect(() => {
     const center = import.meta.env.VITE_MAP_INIT_CENTER.split(",") ?? [0, 0];
     const zoom = import.meta.env.VITE_MAP_INIT_ZOOM ?? 4;
@@ -38,21 +45,29 @@ function MapInterface({ setMapCenter, layersVisible }) {
     }
 
     map.on("moveend", async (e) => {
-      const mapBounds = () => ({
+      const mapBounds = {
         minX: map.getBounds().getNorthWest().lng,
         minY: map.getBounds().getSouthEast().lat,
         maxX: map.getBounds().getSouthEast().lng,
         maxY: map.getBounds().getNorthWest().lat,
-      });
+      };
 
-      console.log("Map bounds ", mapBounds);
+      console.log("Typeof minX", typeof mapBounds.minX);
 
-      const iterable = generic.deserialize(roadSegments, mapBounds);
+      const iterable = generic.deserialize(
+        roadSegments,
+        mapBounds,
+        handleHeaderMeta
+      );
+
+      const fc = { features: [] };
 
       for await (let feature of iterable) {
         fc.features.push({ ...feature, id: i });
         i += 1;
       }
+
+      console.log("Fc ", fc);
     });
 
     return () => {
