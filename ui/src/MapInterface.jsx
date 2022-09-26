@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -19,6 +19,7 @@ const trailSegments =
 /** It's the map. Standard mapbox/maplibre setup with a possible addition of stuff? */
 function MapInterface({ setMapCenter, layersVisible }) {
   const mapRef = useRef(null);
+  const [layersLoading, setLayersLoading] = useState(false);
 
   // optionally show some meta-data about the FGB file
   function handleHeaderMeta(headerMeta) {
@@ -44,7 +45,8 @@ function MapInterface({ setMapCenter, layersVisible }) {
       window.map = map;
     }
 
-    map.on("moveend", async (e) => {
+    map.on("moveend", (e) => {
+      setLayersLoading(true);
       const mapBounds = {
         minX: map.getBounds().getNorthWest().lng,
         minY: map.getBounds().getSouthEast().lat,
@@ -52,22 +54,63 @@ function MapInterface({ setMapCenter, layersVisible }) {
         maxY: map.getBounds().getNorthWest().lat,
       };
 
-      console.log("Typeof minX", typeof mapBounds.minX);
+      // Load road segments
 
-      const iterable = generic.deserialize(
-        roadSegments,
-        mapBounds,
-        handleHeaderMeta
-      );
-
-      const fc = { features: [] };
-
-      for await (let feature of iterable) {
-        fc.features.push({ ...feature, id: i });
-        i += 1;
+      async function loadRoadSegments() {
+        console.log("Loading road segments");
+        const fc = { features: [] };
+        const iterable = generic.deserialize(
+          roadSegments,
+          mapBounds,
+          handleHeaderMeta
+        );
+        for await (let feature of iterable) {
+          console.log("Feature retrieved for road ", feature);
+          fc.features.push({ ...feature, id: i });
+          i += 1;
+        }
+        console.log("Features for road done ", fc);
       }
 
-      console.log("Fc ", fc);
+      async function loadTrailSegments() {
+        console.log("Loading trail segments");
+        const fc = { features: [] };
+        const iterable = generic.deserialize(
+          trailSegments,
+          mapBounds,
+          handleHeaderMeta
+        );
+        for await (let feature of iterable) {
+          console.log("Feature retrieved for trail ", feature);
+          fc.features.push({ ...feature, id: i });
+          i += 1;
+        }
+        console.log("Features for trail done ", fc);
+      }
+
+      async function loadShelterPoints() {
+        console.log("Loading shelter points");
+        const fc = { features: [] };
+        const iterable = generic.deserialize(
+          shelterPoints,
+          mapBounds,
+          handleHeaderMeta
+        );
+        for await (let feature of iterable) {
+          console.log("Feature retrieved for shelter ", feature);
+          fc.features.push({ ...feature, id: i });
+          i += 1;
+        }
+        console.log("Features for shelter done ", fc);
+      }
+
+      Promise.allSettled([
+        loadRoadSegments(),
+        loadShelterPoints(),
+        loadTrailSegments(),
+      ]).then((results) => {
+        setLayersLoading(false);
+      });
     });
 
     return () => {
@@ -75,7 +118,18 @@ function MapInterface({ setMapCenter, layersVisible }) {
     };
   }, []);
 
-  return <div className="w-full h-full" ref={mapRef} />;
+  return (
+    <>
+      <div className="w-full h-full" ref={mapRef} />
+      <div
+        className={`fixed bottom-0 left-0 p-2 bg-yellow-400 ${
+          layersLoading ? "visible" : "hidden"
+        }`}
+      >
+        loading...
+      </div>
+    </>
+  );
 }
 
 export default MapInterface;
