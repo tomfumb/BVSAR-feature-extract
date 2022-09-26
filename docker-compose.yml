@@ -1,6 +1,41 @@
 version: '3.8'
 
 services:
+
+  minio:
+    image: minio/minio
+    env_file:
+      - ./minio/.env.creds
+    command: server /data
+    healthcheck:
+      test: curl -s http://localhost:9000 > /dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 5s
+      timeout: 1s
+      retries: 10
+
+  minio-client:
+    build:
+      context: ./minio/client
+    env_file:
+      - ./minio/.env.creds
+    environment:
+      MINIO_URL: http://minio:9000
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  aws-cli:
+    image: amazon/aws-cli:2.4.22
+    env_file:
+      - ./minio/.env.creds
+    volumes:
+      - ./feature_extract/data:/data
+    depends_on:
+      minio-client:
+        condition: service_completed_successfully
+    entrypoint: ""
+    command: sh -c "echo Uploading FileGeobuf data to minio...; ls -1 /data/*.fgb | xargs -I {} aws --endpoint-url http://minio:9000 s3 cp {} s3://bvsar"
+
   api:
     build:
       context: .
@@ -13,3 +48,6 @@ services:
       - type: bind
         source: ./feature_extract_api
         target: /app/feature_extract_api
+    depends_on:
+      aws-cli:
+        condition: service_completed_successfully

@@ -12,24 +12,22 @@ from tests.common import use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
-    from feature_extract.datasets.providers.resource_roads import (
-        DATASET_NAME as RESOURCE_ROADS,
-    )
+    from feature_extract.datasets.providers.resource_roads import ResourceRoads
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
 
 
 extract_parameters = ExtractParameters(
-    lon_min=-127.41236,
-    lon_max=-127.40352,
-    lat_min=54.78662,
-    lat_max=54.79261,
-    dataset=RESOURCE_ROADS,
+    lon_min=-127.7234211789999989,
+    lon_max=-127.6789652730000029,
+    lat_min=54.8413454440000976,
+    lat_max=54.8721005390000016,
+    dataset=ResourceRoads().get_dataset_name(),
 )
 
 
 def test_resource_roads_count():
-    assert count_features(extract_parameters) == 3
+    assert count_features(extract_parameters) == 7
 
 
 def test_resource_roads_features():
@@ -39,16 +37,32 @@ def test_resource_roads_features():
     result_layer = result_datasource.GetLayerByIndex(0)
     expected_features = [
         {
-            "title": "R16534 960",
-            "vertices": 193,
+            "title": "7552 05",
+            "vertices": 197,
         },
         {
-            "title": "R16534 980",
-            "vertices": 25,
+            "title": "7552 26",
+            "vertices": 2,
         },
         {
-            "title": "R16534 470",
-            "vertices": 8,
+            "title": "7552 49",
+            "vertices": 45,
+        },
+        {
+            "title": "7552 28",
+            "vertices": 22,
+        },
+        {
+            "title": "7552 27",
+            "vertices": 6,
+        },
+        {
+            "title": "7552 34",
+            "vertices": 100,
+        },
+        {
+            "title": "7552 35",
+            "vertices": 2,
         },
     ]
     assert len(expected_features) == result_layer.GetFeatureCount(), "incorrect number of features returned"

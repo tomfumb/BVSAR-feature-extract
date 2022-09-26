@@ -1,15 +1,18 @@
+import re
 from json import loads
-from os import path
+from os import remove
+from shutil import copyfile
 
 from osgeo import ogr
 from pytest import MonkeyPatch
-from tests.common import get_test_data_dir, use_test_data_dir
+from tests.common import use_test_data_dir
 
 with MonkeyPatch.context() as mp:
     use_test_data_dir(mp)
-    from feature_extract.datasets.providers.trails import DATASET_NAME as TRAILS
+    from feature_extract.datasets.providers.trails import Trails
     from feature_extract.extract_parameters import ExtractParameters
     from feature_extract.retriever import count_features, get_features_file_path
+    from feature_extract.settings import settings
 
 
 extract_parameters = ExtractParameters(
@@ -17,42 +20,48 @@ extract_parameters = ExtractParameters(
     lon_max=102,
     lat_min=-45,
     lat_max=-44,
-    dataset=TRAILS,
+    dataset=Trails().get_dataset_name(),
 )
 
 test_feature_type = "test feature"
 test_features = {
-    "enclosed": "LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1)",
-    "overlapping": "LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102.1 -43.9, 102.1 -43.1, 105.5 -42)",
-    "outside": "LINESTRING (102.1 -43.9, 102.1 -43.1, 105.5 -42)",
+    "enclosed": "MULTILINESTRING ((101.1 -44.9, 101.1 -44.1, 101.9 -44.1))",
+    "overlapping": "MULTILINESTRING ((101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102.1 -43.9, 102.1 -43.1, 105.5 -42))",
+    "outside": "MULTILINESTRING ((102.1 -43.9, 102.1 -43.1, 105.5 -42))",
 }
 
-gpkg_name = "local-features.gpkg"
-gpkg_path = path.join(get_test_data_dir(), gpkg_name)
-
-trails_driver = ogr.GetDriverByName("GPKG")
-trails_datasource = trails_driver.Open(gpkg_path, 1)
-trails_layer = trails_datasource.GetLayerByName("trails")
+template_data_path = f"{settings.data_access_prefix}/trails-template.fgb"
+data_path = f"{settings.data_access_prefix}/trails.fgb"
+driver = ogr.GetDriverByName("FlatGeobuf")
+datasource = None
+layer = None
 
 
 def setup_function():
+    copyfile(template_data_path, data_path)
+    global datasource
+    datasource = driver.Open(data_path, 1)
+    global layer
+    layer = datasource.GetLayerByIndex(0)
     for key, value in test_features.items():
-        feature = ogr.Feature(trails_layer.GetLayerDefn())
+        feature = ogr.Feature(layer.GetLayerDefn())
         feature.SetField("name", key)
         feature.SetField("type", test_feature_type)
         shape = ogr.CreateGeometryFromWkt(value)
         feature.SetGeometry(shape)
-        trails_layer.CreateFeature(feature)
+        layer.CreateFeature(feature)
 
-    assert trails_layer.GetFeatureCount() == len(list(test_features.values())), "test setup problem creating features"
+    assert len(test_features.values()) > 0, "no test features"
+    assert layer.GetFeatureCount() == len(test_features.values()), "test setup problem creating features"
+    datasource.FlushCache()
 
 
 def teardown_function():
-    fids = []
-    while test_feature := trails_layer.GetNextFeature():
-        fids.append(test_feature.GetFID())
-    for fid in fids:
-        trails_layer.DeleteFeature(fid)
+    global layer
+    layer = None
+    global datasource
+    datasource = None
+    remove(data_path)
 
 
 def test_trails_count():
@@ -67,18 +76,19 @@ def test_trails_features():
 
     assert result_layer.GetFeatureCount() == 2, "incorrect number of features returned"
 
-    def matchable_string(input: str) -> str:
-        return input.replace(" ", "")
+    def matchable_wkt_string(input: str) -> str:
+        # OGR will return an input multilinestring as a linestring if it only contains one linestring
+        return re.sub(r"\(\(", "(", re.sub(r"\)\)", ")", re.sub(r"(^MULTI|\s)", "", input)))
 
     while result_feature := result_layer.GetNextFeature():
         feature_geometry = result_feature.GetGeometryRef()
-        feature_wkt = matchable_string(feature_geometry.ExportToWkt())
+        feature_wkt = matchable_wkt_string(feature_geometry.ExportToWkt())
         feature_dict = loads(result_feature.ExportToJson())
         title = feature_dict["properties"]["title"]
         if title == f"enclosed ({test_feature_type})":
-            assert feature_wkt == matchable_string(test_features["enclosed"])
+            assert feature_wkt == matchable_wkt_string(test_features["enclosed"])
         elif title == f"overlapping ({test_feature_type})":
             # original geometry will be clipped at export bbox edge
-            assert feature_wkt == matchable_string("LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)")
+            assert feature_wkt == matchable_wkt_string("LINESTRING (101.1 -44.9, 101.1 -44.1, 101.9 -44.1, 102 -44)")
         else:
             raise Exception("Unexpected feature returned")

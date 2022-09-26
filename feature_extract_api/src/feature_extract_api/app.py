@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from bcrypt import checkpw
 from fastapi import Depends, FastAPI, HTTPException, Request, status
@@ -62,6 +62,11 @@ async def count(
             dataset=dataset,
         )
     )
+
+
+@app.get("/{dataset}/fgb")
+async def fgb_proxy(dataset: str) -> Any:
+    pass
 
 
 @app.get("/list")

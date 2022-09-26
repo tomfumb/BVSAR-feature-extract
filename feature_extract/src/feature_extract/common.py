@@ -18,8 +18,8 @@ result_layer_name: str = "result_layer"
 handlers = {}
 
 
-def register_handler(dataset: str, handler: DatasetProvider) -> None:
-    handlers[dataset] = ExtractHandler(
+def register_handler(handler: DatasetProvider) -> None:
+    handlers[handler.get_dataset_name()] = ExtractHandler(
         dataset_provider=handler,
         feature_type=ogr.wkbMultiLineString,
     )
@@ -69,3 +69,7 @@ def get_features_from_layer(
         new_feature.SetField(id_field_name, feature.GetFID())
         new_feature.SetField(title_field_name, title_provider(feature)[0:title_field_width])
         destination_layer.CreateFeature(new_feature)
+
+
+def get_dataset_providers() -> List[DatasetProvider]:
+    return [provider.dataset_provider for provider in handlers.values()]

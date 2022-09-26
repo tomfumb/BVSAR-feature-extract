@@ -4,8 +4,8 @@ from pydantic import BaseSettings
 
 
 class _Settings(BaseSettings):
-    src_data_dir: str
     out_data_dir: str = gettempdir()
+    data_access_prefix: str
 
 
 settings = _Settings()
