@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "feature_extract_project"
+name = "app"
 version = "0.1.0"
 description = "Extract individual feature data from BVSAR data stores"
 authors = []

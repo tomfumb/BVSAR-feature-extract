@@ -17,5 +17,5 @@ boto3 = "~1.24.80"
 pytest = "~7.1.2"
 
 [build-system]
-requires = ["poetry-core~=1.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
