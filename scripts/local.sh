@@ -2,12 +2,8 @@
 
 pushd $(dirname $0)/..
 
-pushd feature_extract
-poetry install
-popd
-pushd feature_extract_api
-poetry install
-popd
-poetry install
+pip install -e feature_extract[test]
+pip install -e feature_extract_api[test]
+pip install -r requirements.dev.txt
 
 pre-commit install

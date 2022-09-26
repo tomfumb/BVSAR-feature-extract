@@ -5,7 +5,7 @@ services:
   api:
     build:
       args:
-        POETRY_INSTALL_SUFFIX: ""
+        PIP_INSTALL_ARG: "[test]"
     image: tomfumb/bvsar-feature-extract-api-test
     environment:
       data_access_prefix: /app/feature_extract/tests/data

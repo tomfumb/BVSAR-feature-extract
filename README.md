@@ -21,7 +21,7 @@ If no local debugging is required, and all development work is exercised exclusi
 - `scripts/test.sh` to execute tests
 
 ### Debugging
-If local debugging is required, Poetry and GDAL must also be installed (tested with GDAL 3.5.1)
+If local debugging is required, GDAL must also be installed (tested with GDAL 3.5.1)
 - `scripts/local.sh` to install dependencies and configure pre-commit hooks
 
 #### Sample .vscode/launch.json
