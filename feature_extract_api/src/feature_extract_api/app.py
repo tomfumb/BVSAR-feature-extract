@@ -4,7 +4,6 @@ from bcrypt import checkpw
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from mangum import Mangum
 
 from feature_extract.common import list_datasets
 from feature_extract.exceptions.unsupported_dataset import UnsupportedDatasetException
@@ -80,6 +79,3 @@ async def unicorn_exception_handler(_: Request, e: UnsupportedDatasetException):
         status_code=404,
         content={"message": f"{e} dataset not handled"},
     )
-
-
-handler = Mangum(app)
