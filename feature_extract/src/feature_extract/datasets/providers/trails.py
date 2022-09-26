@@ -1,6 +1,3 @@
-from os import path
-from typing import Final
-
 from osgeo import ogr
 
 from feature_extract.common import get_features_from_layer, register_handler
@@ -8,17 +5,18 @@ from feature_extract.datasets.dataset_parameters import DatasetParameters
 from feature_extract.datasets.dataset_provider import DatasetProvider
 from feature_extract.settings import settings
 
-DATASET_NAME: Final = "Trails"
-
 
 class Trails(DatasetProvider):
     def __init__(self):
-        self.gpkg_path = path.join(settings.src_data_dir, "local-features.gpkg")
+        super().__init__()
+        self.dataset_name = "Trails"
+        self.layer_name = "trails"
+        self.fgb_path = f"{settings.data_access_prefix}/{self.layer_name}.fgb"
 
     def export_data(self, parameters: DatasetParameters) -> None:
-        src_driver = ogr.GetDriverByName("GPKG")
-        src_datasource = src_driver.Open(self.gpkg_path)
-        src_layer = src_datasource.GetLayerByName("trails")
+        src_driver = ogr.GetDriverByName("FlatGeobuf")
+        src_datasource = src_driver.Open(self.fgb_path)
+        src_layer = src_datasource.GetLayerByIndex(0)
 
         def title_provider(feature: ogr.Feature) -> str:
             name = feature.GetFieldAsString("name")
@@ -36,8 +34,14 @@ class Trails(DatasetProvider):
             parameters.lat_max,
         )
 
-    def cache_key(self) -> str:
-        return str(path.getmtime(self.gpkg_path))
+    def get_dataset_name(self) -> str:
+        return self.dataset_name
+
+    def get_layer_name(self) -> str:
+        return self.layer_name
+
+    def get_file_path(self) -> str:
+        return self.fgb_path
 
 
-register_handler(DATASET_NAME, Trails())
+register_handler(Trails())

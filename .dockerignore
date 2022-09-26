@@ -1,3 +1,6 @@
+feature_extract/data/**
 feature_extract/tests
 feature_extract_api/tests
+scripts
 **/poetry.lock
+iac
