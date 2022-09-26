@@ -1,14 +1,16 @@
-from typing import Any, List
+from re import match, sub
+from typing import List, Union
 
 from bcrypt import checkpw
-from fastapi import Depends, FastAPI, HTTPException, Request, status
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
+from feature_extract.byte_range_parameters import ByteRangeParameters
 from feature_extract.common import list_datasets
 from feature_extract.exceptions.unsupported_dataset import UnsupportedDatasetException
 from feature_extract.extract_parameters import ExtractParameters
-from feature_extract.retriever import count_features, get_features_file_path
+from feature_extract.retriever import count_features, get_bytes, get_features_file_path
 from feature_extract_api.settings import settings
 
 auth = HTTPBasic()
@@ -31,9 +33,7 @@ app = FastAPI(docs_url="/", dependencies=[Depends(check_credentials)])
 
 
 @app.get("/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}")
-async def export(
-    dataset: str, x_min: float, y_min: float, x_max: float, y_max: float
-) -> FileResponse:
+async def export(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> FileResponse:
     return FileResponse(
         get_features_file_path(
             ExtractParameters(
@@ -49,9 +49,7 @@ async def export(
 
 
 @app.get("/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}")
-async def count(
-    dataset: str, x_min: float, y_min: float, x_max: float, y_max: float
-) -> int:
+async def count(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> int:
     return count_features(
         ExtractParameters(
             lon_min=x_min,
@@ -64,8 +62,32 @@ async def count(
 
 
 @app.get("/{dataset}/fgb")
-async def fgb_proxy(dataset: str) -> Any:
-    pass
+async def fgb_proxy(dataset: str, range: Union[str, None] = Header(default=None)) -> StreamingResponse:
+    if range is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="range header is required",
+        )
+    if not match(r"^bytes=\d+\-\d+$", range):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"range header format incorrect. Must be 'bytes=N-M' but is {range}",
+        )
+    range_start, range_end = sub(r"^bytes=", "", range).split("-")
+    range_response = get_bytes(
+        ByteRangeParameters(
+            range_start=int(range_start),
+            range_end=int(range_end),
+            dataset=dataset,
+        )
+    )
+    return StreamingResponse(
+        range_response.byte_iterator,
+        media_type=range_response.content_type,
+        headers={
+            "Content-Range": range_response.content_range,
+        },
+    )
 
 
 @app.get("/list")
