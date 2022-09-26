@@ -14,7 +14,7 @@ export function App() {
     layerTwo: false,
     layerThree: false,
   });
-  const [mapCenter, setMapCenter] = useState([]);
+  const [mapBounds, setMapBounds] = useState(null);
 
   function onAuthenticate() {
     setAuthenticated(true);
@@ -28,7 +28,7 @@ export function App() {
       <main className="h-screen">
         <MapInterface
           layersVisible={layersVisible}
-          setMapCenter={setMapCenter}
+          setMapBounds={setMapBounds}
         />
       </main>
 

@@ -22,17 +22,9 @@ const generateEmptyFeatureClass = () => ({
 });
 
 /** It's the map. Standard mapbox/maplibre setup with a possible addition of stuff? */
-function MapInterface({ setMapCenter, layersVisible }) {
+function MapInterface({ setMapBounds, layersVisible }) {
   const mapRef = useRef(null);
   const [layersLoading, setLayersLoading] = useState(false);
-
-  // optionally show some meta-data about the FGB file
-  function handleHeaderMeta(headerMeta) {
-    const header = document.getElementById("header");
-    // const formatter = new JSONFormatter(headerMeta, 10);
-    console.log("header meta ", headerMeta);
-    header.appendChild(formatter.render());
-  }
 
   useEffect(() => {
     const center = import.meta.env.VITE_MAP_INIT_CENTER.split(",") ?? [0, 0];
@@ -59,6 +51,7 @@ function MapInterface({ setMapCenter, layersVisible }) {
         maxX: map.getBounds().getSouthEast().lng,
         maxY: map.getBounds().getNorthWest().lat,
       };
+      setMapBounds(map.getBounds().toArray());
 
       // Load road segments
 
@@ -116,8 +109,7 @@ function MapInterface({ setMapCenter, layersVisible }) {
         loadRoadSegments(),
         loadShelterPoints(),
         loadTrailSegments(),
-      ]).then((results) => {
-        console.log("Results ", results);
+      ]).then(() => {
         setLayersLoading(false);
       });
     }
