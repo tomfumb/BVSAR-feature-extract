@@ -1,4 +1,4 @@
-from re import match, sub
+from re import escape, match, sub
 from typing import List, Union
 
 from bcrypt import checkpw
@@ -34,6 +34,9 @@ app = FastAPI(docs_url="/", dependencies=[Depends(check_credentials)])
 
 @app.get("/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}")
 async def export(dataset: str, x_min: float, y_min: float, x_max: float, y_max: float) -> FileResponse:
+    dataset_separator = "."
+    if match(rf"{escape(dataset_separator)}", dataset):
+        pass
     return FileResponse(
         get_features_file_path(
             ExtractParameters(
