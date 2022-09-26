@@ -6,7 +6,7 @@ authors = []
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8,<4"
 feature_extract = { path = "./feature_extract", develop = true }
 feature_extract_api = { path = "./feature_extract_api", develop = true }
 

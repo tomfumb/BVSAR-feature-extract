@@ -8,8 +8,8 @@ Provides an interface to count and extract features within a given bounding box,
 ## Execution
 ### Environment
 The following environment variables are mandatory:
-- `src_data_dir`: identifies the parent directory containing all supported datasets. Datasets should not be in sub-directories.
 - `creds_hash`: hash of a valid username / password. Execute `scripts/creds.sh --user <username> --pass <password>` to generate a valid hash.
+- `data_access_prefix`: path to directory containing FlatGeobuf files. Can be S3 with `/vsis3/` prefix or local path. Files should not be in sub-directories.
 
 The following environment variables are optional:
 - `out_data_dir`: identifies the directory used to store generated datasets, defaults to tmp location.
@@ -40,9 +40,13 @@ If local debugging is required, Poetry and GDAL must also be installed (tested w
                 "--port", "8123",
                 "--reload"
             ],
+            "envFile": "${workspaceFolder}/minio/.env.creds",
             "env": {
-                "src_data_dir": "/home/user/data/BVSAR/feature_extract",
-                "creds_hash": "hash"
+                "creds_hash": "$2b$12$85MauznOKD7Y7fi2oTDSw.HNMu5pnWvyqpd/6/WPVhMjafa3ztkTu",
+                "data_access_prefix": "/vsis3/bvsar",
+                "AWS_S3_ENDPOINT": "localhost:9001",
+                "AWS_HTTPS": "NO",
+                "AWS_VIRTUAL_HOSTING": "FALSE"
             },
             "console": "integratedTerminal",
             "justMyCode": false

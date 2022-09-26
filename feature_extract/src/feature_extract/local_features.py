@@ -2,14 +2,13 @@ from collections import defaultdict
 from os import path, unlink
 from re import sub
 
-from osgeo.ogr import GetDriverByName, UseExceptions
+from osgeo.ogr import GetDriverByName
 
 
 def extract(
     gpkg_path: str,
     output_dir: str,
 ) -> None:
-    UseExceptions()
     input_driver = GetDriverByName("GPKG")
     input_datasource = input_driver.Open(gpkg_path)
     trails_layer = input_datasource.GetLayerByName("trails")

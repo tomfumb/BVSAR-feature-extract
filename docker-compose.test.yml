@@ -1,10 +1,11 @@
 version: '3.8'
 
 services:
+
   api:
     build:
       args:
         POETRY_INSTALL_SUFFIX: ""
     image: tomfumb/bvsar-feature-extract-api-test
     environment:
-      src_data_dir: /app/feature_extract/tests/data
+      data_access_prefix: /app/feature_extract/tests/data

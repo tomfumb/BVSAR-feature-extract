@@ -10,9 +10,7 @@ from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 
 from feature_extract.common import list_datasets
-from feature_extract.datasets.providers.resource_roads import (
-    DATASET_NAME as RESOURCE_ROADS,
-)
+from feature_extract.datasets.providers.resource_roads import ResourceRoads
 from feature_extract.extract_parameters import ExtractParameters
 
 username = str(uuid4())
@@ -41,7 +39,7 @@ def test_count_features(
 ):
     count = 3
     count_features_mock.return_value = count
-    dataset, x_min, x_max, y_min, y_max = RESOURCE_ROADS, -180, 180, -90, 90
+    dataset, x_min, x_max, y_min, y_max = ResourceRoads().get_dataset_name(), -180, 180, -90, 90
     response = client.get(f"/{dataset}/count/{x_min}/{y_min}/{x_max}/{y_max}", headers=headers)
     assert response.status_code == 200
     assert response.json() == count
@@ -65,7 +63,7 @@ def test_export_features(
     with open(path.join(export_file_path), "w") as f:
         f.write(dumps(export_content))
     get_features_file_path_mock.return_value = export_file_path
-    dataset, x_min, x_max, y_min, y_max = RESOURCE_ROADS, -180, 180, -90, 90
+    dataset, x_min, x_max, y_min, y_max = ResourceRoads().get_dataset_name(), -180, 180, -90, 90
     response = client.get(f"/{dataset}/export/{x_min}/{y_min}/{x_max}/{y_max}", headers=headers)
     assert response.status_code == 200
     assert response.json() == export_content

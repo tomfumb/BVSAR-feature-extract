@@ -3,6 +3,8 @@ from importlib import import_module
 from os import path
 from re import sub
 
+from osgeo.ogr import UseExceptions
+
 _current_path = path.dirname(__file__)
 _current_dirname = _current_path.split(path.sep)[-1]
 
@@ -20,3 +22,5 @@ for file_path in [
         module = import_module(module_str)
     except ImportError as e:
         raise Exception(f"unable to import module '{module_str}': {e}")
+
+UseExceptions()
