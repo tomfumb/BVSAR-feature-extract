@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { generic } from "flatgeobuf";
+import { geojson } from "flatgeobuf";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_GL_MAP;
 
@@ -16,6 +16,11 @@ const shelterPoints =
 const trailSegments =
   "https://brian-search-rescue-test-bucket.s3.amazonaws.com/point-trails.fgb";
 
+const generateEmptyFeatureClass = () => ({
+  type: "FeatureCollection",
+  features: [],
+});
+
 /** It's the map. Standard mapbox/maplibre setup with a possible addition of stuff? */
 function MapInterface({ setMapCenter, layersVisible }) {
   const mapRef = useRef(null);
@@ -24,7 +29,8 @@ function MapInterface({ setMapCenter, layersVisible }) {
   // optionally show some meta-data about the FGB file
   function handleHeaderMeta(headerMeta) {
     const header = document.getElementById("header");
-    const formatter = new JSONFormatter(headerMeta, 10);
+    // const formatter = new JSONFormatter(headerMeta, 10);
+    console.log("header meta ", headerMeta);
     header.appendChild(formatter.render());
   }
 
@@ -45,7 +51,7 @@ function MapInterface({ setMapCenter, layersVisible }) {
       window.map = map;
     }
 
-    map.on("moveend", (e) => {
+    function loadData() {
       setLayersLoading(true);
       const mapBounds = {
         minX: map.getBounds().getNorthWest().lng,
@@ -57,51 +63,53 @@ function MapInterface({ setMapCenter, layersVisible }) {
       // Load road segments
 
       async function loadRoadSegments() {
-        console.log("Loading road segments");
-        const fc = { features: [] };
-        const iterable = generic.deserialize(
+        let i = 0;
+        const fc = generateEmptyFeatureClass();
+        const iterable = geojson.deserialize(
           roadSegments,
-          mapBounds,
-          handleHeaderMeta
+          mapBounds
+          // handleHeaderMeta
         );
         for await (let feature of iterable) {
-          console.log("Feature retrieved for road ", feature);
           fc.features.push({ ...feature, id: i });
           i += 1;
         }
-        console.log("Features for road done ", fc);
+        map.getSource("roads").setData(fc);
+        return fc;
       }
 
       async function loadTrailSegments() {
-        console.log("Loading trail segments");
-        const fc = { features: [] };
-        const iterable = generic.deserialize(
+        let i = 0;
+        const fc = generateEmptyFeatureClass();
+        const iterable = geojson.deserialize(
           trailSegments,
-          mapBounds,
-          handleHeaderMeta
+          mapBounds
+          // handleHeaderMeta
         );
         for await (let feature of iterable) {
-          console.log("Feature retrieved for trail ", feature);
           fc.features.push({ ...feature, id: i });
           i += 1;
         }
-        console.log("Features for trail done ", fc);
+        map.getSource("trails").setData(fc);
+        return fc;
       }
 
       async function loadShelterPoints() {
-        console.log("Loading shelter points");
-        const fc = { features: [] };
-        const iterable = generic.deserialize(
+        let i = 0;
+
+        const fc = generateEmptyFeatureClass();
+        const iterable = geojson.deserialize(
           shelterPoints,
-          mapBounds,
-          handleHeaderMeta
+          mapBounds
+          // handleHeaderMeta
         );
         for await (let feature of iterable) {
-          console.log("Feature retrieved for shelter ", feature);
           fc.features.push({ ...feature, id: i });
           i += 1;
         }
-        console.log("Features for shelter done ", fc);
+        map.getSource("shelter").setData(fc);
+
+        return fc;
       }
 
       Promise.allSettled([
@@ -109,9 +117,68 @@ function MapInterface({ setMapCenter, layersVisible }) {
         loadShelterPoints(),
         loadTrailSegments(),
       ]).then((results) => {
+        console.log("Results ", results);
         setLayersLoading(false);
       });
+    }
+
+    // Trigger loading data on initial load as well as on move of features
+    map.on("load", () => {
+      map.addSource("trails", {
+        type: "geojson",
+        data: generateEmptyFeatureClass(),
+      });
+      map.addLayer({
+        id: "trails",
+        type: "line",
+        source: "trails",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "red",
+          "line-width": 2,
+        },
+      });
+
+      map.addSource("roads", {
+        type: "geojson",
+        data: generateEmptyFeatureClass(),
+      });
+      map.addLayer({
+        id: "roads",
+        type: "line",
+        source: "roads",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "yellow",
+          "line-width": 2,
+        },
+      });
+
+      map.addSource("shelter", {
+        type: "geojson",
+        data: generateEmptyFeatureClass(),
+      });
+      map.addLayer({
+        id: "shelter",
+        type: "circle",
+        source: "shelter",
+        paint: {
+          // Make circles larger as the user zooms from z12 to z22.
+          "circle-radius": 5,
+          // Color circles by shelter, using a `match` expression.
+          "circle-color": "blue",
+        },
+      });
+
+      loadData();
     });
+    map.on("moveend", loadData);
 
     return () => {
       mapRef.current = null;
