@@ -3,6 +3,7 @@ from typing import List, Union
 
 from bcrypt import checkpw
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
@@ -101,3 +102,12 @@ async def unicorn_exception_handler(_: Request, e: UnsupportedDatasetException):
         status_code=404,
         content={"message": f"{e} dataset not handled"},
     )
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=".*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
