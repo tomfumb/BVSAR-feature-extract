@@ -102,7 +102,7 @@ function MapInterface({ setMapBounds, layersVisible }) {
           fc.features.push({ ...feature, id: i });
           i += 1;
         }
-        map.getSource("shelter").setData(fc);
+        map.getSource("shelters").setData(fc);
 
         return fc;
       }
@@ -127,6 +127,7 @@ function MapInterface({ setMapBounds, layersVisible }) {
         type: "line",
         source: "trails",
         layout: {
+          visibility: "visible",
           "line-join": "round",
           "line-cap": "round",
         },
@@ -145,6 +146,7 @@ function MapInterface({ setMapBounds, layersVisible }) {
         type: "line",
         source: "roads",
         layout: {
+          visibility: "visible",
           "line-join": "round",
           "line-cap": "round",
         },
@@ -154,19 +156,22 @@ function MapInterface({ setMapBounds, layersVisible }) {
         },
       });
 
-      map.addSource("shelter", {
+      map.addSource("shelters", {
         type: "geojson",
         data: generateEmptyFeatureClass(),
       });
       map.addLayer({
-        id: "shelter",
+        id: "shelters",
         type: "circle",
-        source: "shelter",
+        source: "shelters",
         paint: {
           // Make circles larger as the user zooms from z12 to z22.
           "circle-radius": 5,
           // Color circles by shelter, using a `match` expression.
           "circle-color": "blue",
+        },
+        layout: {
+          visibility: "visible",
         },
       });
 
@@ -178,6 +183,17 @@ function MapInterface({ setMapBounds, layersVisible }) {
       mapRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    Object.entries(layersVisible).forEach(([layer, value]) => {
+      map
+        .getLayer(layer)
+        ?.setLayoutProperty("visibility", value ? "visible" : "none");
+      map.triggerRepaint();
+    });
+  }, [mapRef, layersVisible]);
 
   return (
     <>
